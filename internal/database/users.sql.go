@@ -17,7 +17,7 @@ RETURNING id, created_at, updated_at, name
 `
 
 type CreateUserParams struct {
-	ID        int32
+	ID        string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Name      string

@@ -1,14 +1,20 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jaxxk/go-yoink/internal/database"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 	err := godotenv.Load()
@@ -16,11 +22,19 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	dbURL := os.Getenv("CONN")
+	db, err := sql.Open("postgres", dbURL)
+
+	dbQueries := apiConfig{
+		DB: database.New(db),
+	}
+
 	PORT := os.Getenv("PORT")
 	r := chi.NewRouter()
 
 	r.Get("/v1/healthz", handlerReadinessCheck)
 	r.Get("/v1/err", handlerErr)
+	r.Post("/v1/users", dbQueries.handlerCreateUser)
 
 	server := &http.Server{
 		Addr:    ":" + PORT,
