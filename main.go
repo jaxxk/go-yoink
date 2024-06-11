@@ -34,6 +34,7 @@ func main() {
 
 	r.Get("/v1/healthz", handlerReadinessCheck)
 	r.Get("/v1/err", handlerErr)
+	r.Post("/v1/users", dbQueries.handlerCreateUser)
 
 	server := &http.Server{
 		Addr:    ":" + PORT,

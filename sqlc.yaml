@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 version: "2"
 sql:
   - schema: "sql/schema"
@@ -6,3 +7,13 @@ sql:
     gen:
       go:
         out: "internal/database"
+=======
+version: "2"
+sql:
+  - schema: "sql/schema"
+    queries: "sql/queries"
+    engine: "postgresql"
+    gen:
+      go:
+        out: "internal/database"
+>>>>>>> e5a6370aa5f3252380ec1f3e5f0dd89eb89f3ce4
