@@ -17,11 +17,7 @@ RETURNING id, created_at, updated_at, name
 `
 
 type CreateUserParams struct {
-<<<<<<< HEAD
-	ID        int32
-=======
 	ID        string
->>>>>>> e5a6370aa5f3252380ec1f3e5f0dd89eb89f3ce4
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Name      string
