@@ -25,6 +25,10 @@ func main() {
 	CONN := os.Getenv("CONN")
 	db, err := sql.Open("postgres", CONN)
 
+	if err != nil {
+		log.Fatal("Failed opening postgresa")
+	}
+
 	config := apiConfig{
 		DB: database.New(db),
 	}
