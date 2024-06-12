@@ -8,6 +8,12 @@ import (
 	"time"
 )
 
+type Feed struct {
+	Name   string
+	Url    string
+	UserID string
+}
+
 type User struct {
 	ID        string
 	CreatedAt time.Time
