@@ -12,6 +12,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type authedHandler func(http.ResponseWriter, *http.Request, database.User)
+
 type apiConfig struct {
 	DB *database.Queries
 }
@@ -36,10 +38,14 @@ func main() {
 	PORT := os.Getenv("PORT")
 	r := chi.NewRouter()
 
+	// apply middleware
+	r.Use(Recoverer)
+	r.Use(Logger)
+
 	r.Get("/v1/healthz", handlerReadinessCheck)
 	r.Get("/v1/err", handlerErr)
 	r.Post("/v1/users", config.handlerCreateUser)
-	r.Get("/v1/users", config.handlerGetUserByApiKey)
+	r.Get("/v1/users", config.middlewareAuth(config.HandlerGetUser))
 
 	server := &http.Server{
 		Addr:    ":" + PORT,
