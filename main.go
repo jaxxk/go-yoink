@@ -39,6 +39,7 @@ func main() {
 	r.Get("/v1/healthz", handlerReadinessCheck)
 	r.Get("/v1/err", handlerErr)
 	r.Post("/v1/users", config.handlerCreateUser)
+	r.Get("/v1/users", config.handlerGetUserByApiKey)
 
 	server := &http.Server{
 		Addr:    ":" + PORT,
