@@ -5,7 +5,7 @@ CREATE TABLE feeds (
     user_id VARCHAR(128) NOT NULL,
     CONSTRAINT fk_user
         FOREIGN KEY (user_id)
-        REFERENCES users(id)
+        REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- +goose Down
