@@ -1,5 +1,21 @@
-FROM postgres:16.3-alpine3.20
+# Use the official Golang image as a base image
+FROM golang:1.22
 
-# docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d -p 5432:5432 postgres:16.3-alpine3.20
-# docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' some-postgres
-# psql "postgres://postgres:@localhost:5432/blogator"
+# Set the current working directory inside the container
+WORKDIR /app
+
+# Copy go mod and sum files
+COPY go.mod go.sum ./
+
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
+
+# Copy the source from the current directory to the working Directory inside the container
+COPY . .
+
+
+# Expose port 8080 to the outside world
+EXPOSE 8080
+
+# Command to run the tests
+CMD ["go", "test", "."]

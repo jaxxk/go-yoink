@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16.3-alpine3.20
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: test-blogator
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      - CONN=postgres://user:password@db:5432/test-blogator?sslmode=disable
+      - PORT=8081
+    ports:
+      - "8081:8080"
+    volumes:
+      - app-data:/app
+
+volumes:
+  db-data:
+  app-data:
