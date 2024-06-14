@@ -11,5 +11,6 @@ else
   exit 1
 fi
 
-# Run the tests
-go test -v .
+# start server
+./build.sh
+
