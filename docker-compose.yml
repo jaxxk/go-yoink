@@ -9,8 +9,8 @@ services:
       POSTGRES_DB: test-blogator
     ports:
       - "5433:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
+    # volumes:  # Remove this volume mapping to use ephemeral storage
+    #   - db-data:/var/lib/postgresql/data
 
   app:
     build: .
@@ -22,8 +22,7 @@ services:
     ports:
       - "8081:8080"
     volumes:
-      - app-data:/app
+      - .:/app
 
 volumes:
-  db-data:
   app-data:
