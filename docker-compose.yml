@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: test-blogator
     ports:
-      - "5433:5432"
+      - "5432:5432"
     # volumes:  # Remove this volume mapping to use ephemeral storage
     #   - db-data:/var/lib/postgresql/data
 
@@ -18,9 +18,9 @@ services:
       - db
     environment:
       - CONN=postgres://user:password@db:5432/test-blogator?sslmode=disable
-      - PORT=8081
+      - PORT=8080
     ports:
-      - "8081:8080"
+      - "8080:8080"
     volumes:
       - .:/app
 

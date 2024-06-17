@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -15,8 +14,7 @@ import (
 )
 
 func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel() // ensure the cancel function is called to release resources
+	ctx := r.Context()
 
 	type parameters struct {
 		Name   string `json:"name"`
@@ -28,12 +26,14 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	err := decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, "Failed to decode")
+		return
 	}
 
 	var user database.CreateUserParams
 	apikey, err := generateApiKey()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "failed to generate api key")
+		return
 	}
 
 	if params.ApiKey == "" {
@@ -42,7 +42,7 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 			Name:      params.Name,
-			ApiKey:    apikey, // Assuming empty string should be handled by your SQL logic to generate a new ApiKey
+			ApiKey:    apikey,
 		}
 	} else {
 		user = database.CreateUserParams{
@@ -50,14 +50,14 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 			Name:      params.Name,
-			ApiKey:    params.ApiKey, // Assuming empty string should be handled by your SQL logic to generate a new ApiKey
+			ApiKey:    params.ApiKey,
 		}
 	}
 
 	dbUser, err := cfg.DB.CreateUser(ctx, user)
-
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "failed to create user")
+		return
 	}
 
 	respondWithJSON(w, http.StatusOK, dbUser)

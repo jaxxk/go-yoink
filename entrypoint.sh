@@ -12,5 +12,16 @@ else
 fi
 
 # start server
-./build.sh
+nohup ./build.sh &
+
+# Wait for the server to start
+echo "Waiting for the server to start..."
+until curl -s http://localhost:8080/healthz; do
+  sleep 1
+done
+
+echo "Server is up and running."
+
+# start test
+go test .
 

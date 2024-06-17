@@ -28,7 +28,7 @@ func main() {
 	db, err := sql.Open("postgres", CONN)
 
 	if err != nil {
-		log.Fatal("Failed opening postgresa")
+		log.Fatal("Failed opening postgres")
 	}
 
 	config := apiConfig{
@@ -46,6 +46,7 @@ func main() {
 	r.Get("/v1/err", handlerErr)
 	r.Post("/v1/users", config.handlerCreateUser)
 	r.Get("/v1/users", config.middlewareAuth(config.HandlerGetUser))
+	r.Post("/v1/feeds", config.middlewareAuth(config.HandlerCreateFeed))
 
 	server := &http.Server{
 		Addr:    ":" + PORT,

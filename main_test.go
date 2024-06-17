@@ -67,7 +67,33 @@ func TestHandlerAuthUser(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-// func TestHandlerCreateFeed(t *testing.T) {
+func TestHandlerCreateFeed(t *testing.T) {
+	type parameters struct {
+		Name string `json:"name"`
+		Url  string `json:"url"`
+	}
 
-// 	// assert.Equal(t, http.StatusOK, resp.StatusCode)
-// }
+	params := parameters{
+		Name: "test feed",
+		Url:  "the feed",
+	}
+
+	body, err := json.Marshal(params)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req, err := http.NewRequest("POST", URL+"/v1/feeds", bytes.NewBuffer(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Apikey valid_api_key")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
