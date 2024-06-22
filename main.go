@@ -48,6 +48,7 @@ func main() {
 	r.Get("/v1/users", config.middlewareAuth(config.HandlerGetUser))
 	r.Post("/v1/feeds", config.middlewareAuth(config.HandlerCreateFeed))
 	r.Post("/v1/feed_follows", config.middlewareAuth(config.HandlerFollowFeed))
+	r.Delete("/v1/feed_follows/{feedFollowID}", config.middlewareAuth(config.HandlerRemoveFollowFeed))
 	r.Get("/v1/feeds", config.handlerGetFeeds)
 
 	server := &http.Server{
