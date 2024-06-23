@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -10,8 +9,17 @@ import (
 
 func (cfg *apiConfig) HandlerRemoveFollowFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFollowID := chi.URLParam(r, "feedFollowID")
-	log.Println(feedFollowID)
-	err := cfg.DB.Unfollow(r.Context(), feedFollowID)
+	dbFeed, err := cfg.DB.GetFollowFeedByID(r.Context(), feedFollowID)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, "feed does not exist")
+		return
+	}
+	if dbFeed.UserID != user.ID {
+		respondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	err = cfg.DB.Unfollow(r.Context(), feedFollowID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "failed to unfollow")
 		return

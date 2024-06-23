@@ -19,6 +19,7 @@ func (cfg *apiConfig) HandlerCreateFeed(w http.ResponseWriter, r *http.Request, 
 	err := decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "cannot decode params")
+		return
 	}
 
 	feed := database.CreateFeedParams{
@@ -33,21 +34,34 @@ func (cfg *apiConfig) HandlerCreateFeed(w http.ResponseWriter, r *http.Request, 
 	dbFeed, err := cfg.DB.CreateFeed(r.Context(), feed)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "cannot create feed")
+		return
 	}
 
 	followFeed := database.FollowFeedParams{
-		ID:        uuid.NewString(),
+		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		UserID:    user.ID,
 		FeedID:    dbFeed.ID,
 	}
 
-	_, err = cfg.DB.FollowFeed(r.Context(), followFeed)
+	dbFollowFeed, err := cfg.DB.FollowFeed(r.Context(), followFeed)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "failed to follow feed")
+		return
 	}
 
-	respondWithJSON(w, http.StatusOK, dbFeed)
+	type response struct {
+		Feed       database.Feed       `json:"feed"`
+		FollowFeed database.FeedFollow `json:"follow_feed"`
+	}
 
+	// Create a response instance
+	resp := response{
+		Feed:       dbFeed,
+		FollowFeed: dbFollowFeed,
+	}
+
+	// Respond with the combined structure
+	respondWithJSON(w, http.StatusOK, resp)
 }

@@ -17,7 +17,7 @@ type Feed struct {
 	UpdatedAt time.Time
 }
 
-type FeedsUser struct {
+type FeedFollow struct {
 	ID        string
 	CreatedAt time.Time
 	UpdatedAt time.Time
