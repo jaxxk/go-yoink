@@ -43,6 +43,42 @@ func (q *Queries) FollowFeed(ctx context.Context, arg FollowFeedParams) (FeedsUs
 	return i, err
 }
 
+const getAllFollowFeedsForUser = `-- name: GetAllFollowFeedsForUser :many
+SELECT feeds_users.id, feeds_users.created_at, feeds_users.updated_at, feeds_users.user_id, feeds_users.feed_id
+FROM feeds_users
+INNER JOIN users ON users.id = feeds_users.user_id
+WHERE users.id = $1
+`
+
+func (q *Queries) GetAllFollowFeedsForUser(ctx context.Context, id string) ([]FeedsUser, error) {
+	rows, err := q.db.QueryContext(ctx, getAllFollowFeedsForUser, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FeedsUser
+	for rows.Next() {
+		var i FeedsUser
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.UserID,
+			&i.FeedID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const unfollow = `-- name: Unfollow :exec
 DELETE FROM feeds_users
 WHERE feeds_users.id = $1

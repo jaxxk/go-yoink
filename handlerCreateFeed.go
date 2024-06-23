@@ -35,6 +35,19 @@ func (cfg *apiConfig) HandlerCreateFeed(w http.ResponseWriter, r *http.Request, 
 		respondWithError(w, http.StatusInternalServerError, "cannot create feed")
 	}
 
+	followFeed := database.FollowFeedParams{
+		ID:        uuid.NewString(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		FeedID:    dbFeed.ID,
+	}
+
+	_, err = cfg.DB.FollowFeed(r.Context(), followFeed)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "failed to follow feed")
+	}
+
 	respondWithJSON(w, http.StatusOK, dbFeed)
 
 }

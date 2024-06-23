@@ -37,3 +37,13 @@ func (cfg *apiConfig) HandlerFollowFeed(w http.ResponseWriter, r *http.Request, 
 
 	respondWithJSON(w, http.StatusOK, dbFollowFeed)
 }
+func (cfg *apiConfig) HandlerGetFollowFeed(w http.ResponseWriter, r *http.Request, user database.User) {
+	listOfFollowFeed, err := cfg.DB.GetAllFollowFeedsForUser(r.Context(), user.ID)
+
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "failed to retrieve followed feeds")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, listOfFollowFeed)
+}
