@@ -15,7 +15,7 @@ WHERE feeds.user_id = $1;
 -- name: GetNextFeedsToFetch :many
 SELECT name, url
 FROM feeds
-ORDER BY last_fetched_at IS NULL DESC, last_fetched_at ASC;
+ORDER BY last_fetched_at IS NULL DESC, last_fetched_at ASC
 LIMIT $1;
 
 -- name: MarkFeedFetched :exec
