@@ -13,7 +13,7 @@ FROM feeds
 WHERE feeds.user_id = $1;
 
 -- name: GetNextFeedsToFetch :many
-SELECT name, url
+SELECT name, url, id
 FROM feeds
 ORDER BY last_fetched_at IS NULL DESC, last_fetched_at ASC
 LIMIT $1;
@@ -21,4 +21,4 @@ LIMIT $1;
 -- name: MarkFeedFetched :exec
 UPDATE feeds
 SET updated_at = $1, last_fetched_at = $1
-WHERE user_id = $2;
+WHERE id = $2;

@@ -105,7 +105,7 @@ func (q *Queries) GetFeedByUserID(ctx context.Context, userID string) (Feed, err
 }
 
 const getNextFeedsToFetch = `-- name: GetNextFeedsToFetch :many
-SELECT name, url
+SELECT name, url, id
 FROM feeds
 ORDER BY last_fetched_at IS NULL DESC, last_fetched_at ASC
 LIMIT $1
@@ -114,6 +114,7 @@ LIMIT $1
 type GetNextFeedsToFetchRow struct {
 	Name string
 	Url  string
+	ID   string
 }
 
 func (q *Queries) GetNextFeedsToFetch(ctx context.Context, limit int32) ([]GetNextFeedsToFetchRow, error) {
@@ -125,7 +126,7 @@ func (q *Queries) GetNextFeedsToFetch(ctx context.Context, limit int32) ([]GetNe
 	var items []GetNextFeedsToFetchRow
 	for rows.Next() {
 		var i GetNextFeedsToFetchRow
-		if err := rows.Scan(&i.Name, &i.Url); err != nil {
+		if err := rows.Scan(&i.Name, &i.Url, &i.ID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -142,15 +143,15 @@ func (q *Queries) GetNextFeedsToFetch(ctx context.Context, limit int32) ([]GetNe
 const markFeedFetched = `-- name: MarkFeedFetched :exec
 UPDATE feeds
 SET updated_at = $1, last_fetched_at = $1
-WHERE user_id = $2
+WHERE id = $2
 `
 
 type MarkFeedFetchedParams struct {
 	UpdatedAt time.Time
-	UserID    string
+	ID        string
 }
 
 func (q *Queries) MarkFeedFetched(ctx context.Context, arg MarkFeedFetchedParams) error {
-	_, err := q.db.ExecContext(ctx, markFeedFetched, arg.UpdatedAt, arg.UserID)
+	_, err := q.db.ExecContext(ctx, markFeedFetched, arg.UpdatedAt, arg.ID)
 	return err
 }

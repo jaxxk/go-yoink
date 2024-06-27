@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jaxxk/go-yoink/internal/database"
+	"github.com/jaxxk/go-yoink/worker"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -56,6 +57,8 @@ func main() {
 		Addr:    ":" + PORT,
 		Handler: r,
 	}
+
+	go worker.StartWorking(config.DB, worker.FetchRSSFeed)
 	log.Printf("Serving on port: %s\n", PORT)
 	log.Fatal(server.ListenAndServe())
 }
