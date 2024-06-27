@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jaxxk/go-yoink/internal/database"
 )
 
@@ -29,11 +30,11 @@ type rssChannel struct {
 
 // rssItem represents the <item> element
 type rssItem struct {
-	Title       string `xml:"title"`
-	Link        string `xml:"link"`
-	PubDate     string `xml:"pubDate"`
-	GUID        string `xml:"guid"`
-	Description string `xml:"description"`
+	Title       string    `xml:"title"`
+	Link        string    `xml:"link"`
+	PubDate     time.Time `xml:"pubDate"`
+	GUID        string    `xml:"guid"`
+	Description string    `xml:"description"`
 }
 
 func FetchRSSFeed(url string) (*RSSFEED, error) {
@@ -83,7 +84,11 @@ func StartWorking(db *database.Queries, fetchFeed func(url string) (*RSSFEED, er
 				}
 				// Process the feed (e.g., print titles)
 				for _, item := range rssFeed.Channel.Items {
-					log.Println("Title:", item.Title)
+					err = processFeed(db, item, ctx, feed.ID)
+					if err != nil {
+						log.Printf("Error processing feeds item %s:", item.Title)
+						continue
+					}
 				}
 				markFeed := database.MarkFeedFetchedParams{
 					UpdatedAt: time.Now(),
@@ -98,4 +103,22 @@ func StartWorking(db *database.Queries, fetchFeed func(url string) (*RSSFEED, er
 		}
 		wg.Wait() // Wait for all
 	}
+}
+
+func processFeed(db *database.Queries, item rssItem, ctx context.Context, feedID string) error {
+	post := database.CreatePostParams{
+		ID:          uuid.NewString(),
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		Title:       item.Title,
+		Url:         item.Link,
+		Description: item.Description,
+		PublishedAt: item.PubDate,
+		FeedID:      feedID,
+	}
+	_, err := db.CreatePost(ctx, post)
+	if err != nil {
+		log.Println("Error creating post: ", err)
+	}
+	return nil
 }
