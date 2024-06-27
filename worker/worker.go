@@ -28,13 +28,35 @@ type rssChannel struct {
 	Items       []rssItem `xml:"item"`
 }
 
+// CustomTime is a custom time type to handle the PubDate parsing
+type CustomTime struct {
+	time.Time
+}
+
+const customTimeFormat = "Mon, 02 Jan 2006 15:04:05 -0700"
+
+// UnmarshalXML is a custom unmarshaler for the CustomTime type
+func (ct *CustomTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var v string
+	if err := d.DecodeElement(&v, &start); err != nil {
+		return err
+	}
+	// Parse the time according to the custom format
+	t, err := time.Parse(customTimeFormat, v)
+	if err != nil {
+		return err
+	}
+	ct.Time = t
+	return nil
+}
+
 // rssItem represents the <item> element
 type rssItem struct {
-	Title       string    `xml:"title"`
-	Link        string    `xml:"link"`
-	PubDate     time.Time `xml:"pubDate"`
-	GUID        string    `xml:"guid"`
-	Description string    `xml:"description"`
+	Title       string     `xml:"title"`
+	Link        string     `xml:"link"`
+	PubDate     CustomTime `xml:"pubDate"`
+	GUID        string     `xml:"guid"`
+	Description string     `xml:"description"`
 }
 
 func FetchRSSFeed(url string) (*RSSFEED, error) {
@@ -110,10 +132,10 @@ func processFeed(db *database.Queries, item rssItem, ctx context.Context, feedID
 		ID:          uuid.NewString(),
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
-		Title:       item.Title,
-		Url:         item.Link,
-		Description: item.Description,
-		PublishedAt: item.PubDate,
+		Title:       truncateString(item.Title, 128),
+		Url:         truncateString(item.Link, 128),
+		Description: truncateString(item.Description, 800),
+		PublishedAt: item.PubDate.Time,
 		FeedID:      feedID,
 	}
 	_, err := db.CreatePost(ctx, post)
@@ -121,4 +143,10 @@ func processFeed(db *database.Queries, item rssItem, ctx context.Context, feedID
 		log.Println("Error creating post: ", err)
 	}
 	return nil
+}
+func truncateString(str string, maxLen int) string {
+	if len(str) > maxLen {
+		return str[:maxLen]
+	}
+	return str
 }

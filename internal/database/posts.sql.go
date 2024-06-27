@@ -57,10 +57,16 @@ SELECT posts.id, posts.created_at, posts.updated_at, posts.title, posts.url, pos
 FROM posts
 INNER JOIN feeds ON feeds.id = posts.feed_id
 WHERE feeds.user_id = $1
+LIMIT $2
 `
 
-func (q *Queries) GetPostsByUser(ctx context.Context, userID string) ([]Post, error) {
-	rows, err := q.db.QueryContext(ctx, getPostsByUser, userID)
+type GetPostsByUserParams struct {
+	UserID string
+	Limit  int32
+}
+
+func (q *Queries) GetPostsByUser(ctx context.Context, arg GetPostsByUserParams) ([]Post, error) {
+	rows, err := q.db.QueryContext(ctx, getPostsByUser, arg.UserID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

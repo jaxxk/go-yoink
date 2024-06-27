@@ -50,6 +50,7 @@ func main() {
 	r.Post("/v1/feeds", config.middlewareAuth(config.HandlerCreateFeed))
 	r.Post("/v1/feed_follows", config.middlewareAuth(config.HandlerFollowFeed))
 	r.Get("/v1/feed_follows", config.middlewareAuth(config.HandlerGetFollowFeed))
+	r.Get("/v1/posts", config.middlewareAuth(config.HandlerGetPosts))
 	r.Delete("/v1/feed_follows/{feedFollowID}", config.middlewareAuth(config.HandlerRemoveFollowFeed))
 	r.Get("/v1/feeds", config.handlerGetFeeds)
 

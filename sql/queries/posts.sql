@@ -4,7 +4,8 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *;
 
 -- name: GetPostsByUser :many
-SELECT posts.*
+SELECT posts.id, posts.created_at, posts.updated_at, posts.title, posts.url, posts.description, posts.published_at, posts.feed_id
 FROM posts
 INNER JOIN feeds ON feeds.id = posts.feed_id
-WHERE feeds.user_id = $1;
+WHERE feeds.user_id = $1
+LIMIT $2;
